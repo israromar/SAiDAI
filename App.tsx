@@ -8,13 +8,17 @@
 import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  NativeModules,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
   View,
+  Button,
 } from 'react-native';
+import React, {useState, useEffect} from 'react';
 
 import {
   Colors,
@@ -54,12 +58,40 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
+// Define the interface for the BatteryModule
+interface IBatteryModule {
+  getBatteryLevel: (callback: (level: number) => void) => void;
+}
+
+// Access the BatteryModule
+const BatteryModule = NativeModules.BatteryModule as IBatteryModule;
+
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const [batteryLevel, setBatteryLevel] = useState<string | null>(null);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    flex: 1, // Ensure View takes full screen for ScrollView content
   };
+
+  const fetchBatteryLevel = async () => {
+    if (Platform.OS === 'ios' && BatteryModule) {
+      BatteryModule.getBatteryLevel((level: number) => {
+        if (level === -1.0) {
+          setBatteryLevel('Battery level unavailable');
+        } else {
+          setBatteryLevel(Math.round(level * 100) + '%');
+        }
+      });
+    } else {
+      setBatteryLevel('Not available on this platform');
+    }
+  };
+
+  useEffect(() => {
+    fetchBatteryLevel();
+  }, []);
 
   /*
    * To keep the template simple and small we're adding padding to prevent view
@@ -70,7 +102,7 @@ function App(): React.JSX.Element {
    * You can read more about it here:
    * https://github.com/react-native-community/discussions-and-proposals/discussions/827
    */
-  const safePadding = '5%';
+  const safePadding = '5%'; // This was defined in the original code, let's keep it if used by Header or other components
 
   return (
     <View style={backgroundStyle}>
@@ -79,16 +111,25 @@ function App(): React.JSX.Element {
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <ScrollView
-        style={backgroundStyle}>
+        contentInsetAdjustmentBehavior="automatic" // Standard prop for ScrollView
+        style={{backgroundColor: backgroundStyle.backgroundColor}}>
         <View style={{paddingRight: safePadding}}>
-          <Header/>
+          <Header />
         </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
+            paddingHorizontal: safePadding, // Original padding
+            paddingBottom: safePadding, // Original padding
           }}>
+          <Section title="Battery Info">
+            <View style={styles.batterySection}>
+              <Button title="Refresh Battery Level" onPress={fetchBatteryLevel} />
+              <Text style={[styles.batteryText, {color: isDarkMode ? Colors.white : Colors.black}]}>
+                Battery Level: {batteryLevel !== null ? batteryLevel : 'Fetching...'}
+              </Text>
+            </View>
+          </Section>
           <Section title="Step One">
             Edit <Text style={styles.highlight}>App.tsx</Text> to change this
             screen and then come back to see your edits.
@@ -112,7 +153,7 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
-    paddingHorizontal: 24,
+    // paddingHorizontal: 24, // Duplicated with View's paddingHorizontal, removing from here
   },
   sectionTitle: {
     fontSize: 24,
@@ -125,6 +166,15 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  batterySection: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  batteryText: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: '400',
   },
 });
 
