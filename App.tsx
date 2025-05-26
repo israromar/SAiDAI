@@ -62,6 +62,26 @@ const BatteryModule = NativeModules.BatteryModule as IBatteryModule;
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [batteryLevel, setBatteryLevel] = useState<string | null>(null);
+  const [deviceInfo, setDeviceInfo] = useState<any>(null);
+  console.log('🚀 ~ App ~ deviceInfo:', deviceInfo);
+
+  console.log('🚀 ~ App ~ NativeModules:', NativeModules);
+  console.log('🚀 ~ App ~ NativeModules:', NativeModules.DeviceInfoModule);
+
+  const getDeviceInfo = async () => {
+    NativeModules.DeviceInfoModule.getDeviceInfo()
+      .then((info: any) => {
+        console.log('Device Info:', info);
+        setDeviceInfo(info);
+      })
+      .catch((err: any) => {
+        console.error('Error fetching device info', err);
+      });
+  };
+
+  useEffect(() => {
+    getDeviceInfo();
+  }, []);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -86,16 +106,7 @@ function App(): React.JSX.Element {
     fetchBatteryLevel();
   }, []);
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%'; // This was defined in the original code, let's keep it if used by Header or other components
+  const safePadding = '5%';
 
   return (
     <View style={backgroundStyle}>
@@ -128,6 +139,47 @@ function App(): React.JSX.Element {
                 ]}>
                 Battery Level:{' '}
                 {batteryLevel !== null ? batteryLevel : 'Fetching...'}
+              </Text>
+            </View>
+          </Section>
+          <Section title="Device Info">
+            <View style={styles.batterySection}>
+              <Button title="Refresh Device Info" onPress={getDeviceInfo} />
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                Name: {deviceInfo?.name}
+              </Text>
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                System Name: {deviceInfo?.systemName}
+              </Text>
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                System Version: {deviceInfo?.systemVersion}
+              </Text>
+
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                Localized Model: {deviceInfo?.localizedModel}
+              </Text>
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                Model: {deviceInfo?.model}
               </Text>
             </View>
           </Section>
