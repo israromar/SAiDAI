@@ -117,9 +117,6 @@ function App(): React.JSX.Element {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic" // Standard prop for ScrollView
         style={{backgroundColor: backgroundStyle.backgroundColor}}>
-        <View style={{paddingRight: safePadding}}>
-          <Header />
-        </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
@@ -208,7 +205,7 @@ const styles = StyleSheet.create({
   },
   batterySection: {
     marginTop: 16,
-    alignItems: 'center',
+    justifyContent: 'center',
   },
   batteryText: {
     marginTop: 8,
