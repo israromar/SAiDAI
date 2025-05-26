@@ -5,7 +5,6 @@
  * @format
  */
 
-import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   NativeModules,
@@ -20,13 +19,7 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -124,26 +117,20 @@ function App(): React.JSX.Element {
           }}>
           <Section title="Battery Info">
             <View style={styles.batterySection}>
-              <Button title="Refresh Battery Level" onPress={fetchBatteryLevel} />
-              <Text style={[styles.batteryText, {color: isDarkMode ? Colors.white : Colors.black}]}>
-                Battery Level: {batteryLevel !== null ? batteryLevel : 'Fetching...'}
+              <Button
+                title="Refresh Battery Level"
+                onPress={fetchBatteryLevel}
+              />
+              <Text
+                style={[
+                  styles.batteryText,
+                  {color: isDarkMode ? Colors.white : Colors.black},
+                ]}>
+                Battery Level:{' '}
+                {batteryLevel !== null ? batteryLevel : 'Fetching...'}
               </Text>
             </View>
           </Section>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </View>
